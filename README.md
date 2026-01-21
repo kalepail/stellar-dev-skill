@@ -26,7 +26,7 @@ This skill provides Claude Code with deep knowledge of the current Stellar devel
 
 ```bash
 # Clone and install
-git clone https://github.com/YOUR_USERNAME/stellar-dev-skill
+git clone https://github.com/kalepail/stellar-dev-skill
 cd stellar-dev-skill
 ./install.sh
 ```
