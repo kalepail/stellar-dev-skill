@@ -304,24 +304,26 @@ pub fn transfer_asset(env: Env, from: Address, to: Address, asset: Address, amou
 
 ### Emitting Events
 ```rust
-use soroban_sdk::{contracttype, symbol_short, Address, Env};
+use soroban_sdk::{contract, contractevent, contractimpl, Address, Env};
 
-#[contracttype]
-#[derive(Clone, Debug)]
+#[contractevent(topics = ["transfer"])]
 pub struct TransferEvent {
     pub from: Address,
     pub to: Address,
     pub amount: i128,
 }
 
-pub fn transfer(env: Env, from: Address, to: Address, amount: i128) {
-    // ... transfer logic ...
+#[contract]
+pub struct TokenContract;
 
-    // Emit event
-    env.events().publish(
-        (symbol_short!("transfer"), from.clone()),
-        TransferEvent { from, to, amount },
-    );
+#[contractimpl]
+impl TokenContract {
+    pub fn transfer(env: Env, from: Address, to: Address, amount: i128) {
+        // ... transfer logic ...
+        
+        // Emit event
+        TransferEvent { from, to, amount }.publish(&env);
+    }
 }
 ```
 
