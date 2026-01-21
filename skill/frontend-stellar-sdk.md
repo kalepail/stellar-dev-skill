@@ -21,12 +21,12 @@ import * as StellarSdk from "@stellar/stellar-sdk";
 
 // For Testnet
 const server = new StellarSdk.Horizon.Server("https://horizon-testnet.stellar.org");
-const rpc = new StellarSdk.SorobanRpc.Server("https://soroban-testnet.stellar.org");
+const rpc = new StellarSdk.rpc.Server("https://soroban-testnet.stellar.org");
 const networkPassphrase = StellarSdk.Networks.TESTNET;
 
 // For Mainnet
 const server = new StellarSdk.Horizon.Server("https://horizon.stellar.org");
-const rpc = new StellarSdk.SorobanRpc.Server("https://soroban.stellar.org");
+const rpc = new StellarSdk.rpc.Server("https://soroban.stellar.org");
 const networkPassphrase = StellarSdk.Networks.PUBLIC;
 ```
 
@@ -53,7 +53,7 @@ export const config = {
 }[NETWORK]!;
 
 export const horizon = new StellarSdk.Horizon.Server(config.horizonUrl);
-export const rpc = new StellarSdk.SorobanRpc.Server(config.rpcUrl);
+export const rpc = new StellarSdk.rpc.Server(config.rpcUrl);
 ```
 
 ## Wallet Integration
@@ -233,12 +233,12 @@ export async function invokeContract(
   // Simulate to get resource estimates
   const simulation = await rpc.simulateTransaction(transaction);
 
-  if (StellarSdk.SorobanRpc.Api.isSimulationError(simulation)) {
+  if (StellarSdk.rpc.Api.isSimulationError(simulation)) {
     throw new Error(`Simulation failed: ${simulation.error}`);
   }
 
   // Assemble with proper resources
-  transaction = StellarSdk.SorobanRpc.assembleTransaction(
+  transaction = StellarSdk.rpc.assembleTransaction(
     transaction,
     simulation
   ).build();

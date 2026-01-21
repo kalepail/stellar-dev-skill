@@ -27,7 +27,7 @@ Stellar provides two API paradigms:
 ```typescript
 import * as StellarSdk from "@stellar/stellar-sdk";
 
-const rpc = new StellarSdk.SorobanRpc.Server("https://soroban-testnet.stellar.org");
+const rpc = new StellarSdk.rpc.Server("https://soroban-testnet.stellar.org");
 ```
 
 ### Key Methods
@@ -78,9 +78,9 @@ if (entries.entries.length > 0) {
 ```typescript
 const simulation = await rpc.simulateTransaction(transaction);
 
-if (StellarSdk.SorobanRpc.Api.isSimulationError(simulation)) {
+if (StellarSdk.rpc.Api.isSimulationError(simulation)) {
   console.error("Simulation failed:", simulation.error);
-} else if (StellarSdk.SorobanRpc.Api.isSimulationSuccess(simulation)) {
+} else if (StellarSdk.rpc.Api.isSimulationSuccess(simulation)) {
   console.log("Cost:", simulation.cost);
   console.log("Result:", simulation.result);
 }
@@ -412,7 +412,7 @@ const configs: Record<string, NetworkConfig> = {
 const network = process.env.STELLAR_NETWORK || "testnet";
 export const config = configs[network];
 
-export const rpc = new StellarSdk.SorobanRpc.Server(config.rpcUrl);
+export const rpc = new StellarSdk.rpc.Server(config.rpcUrl);
 export const horizon = new StellarSdk.Horizon.Server(config.horizonUrl);
 ```
 

@@ -314,12 +314,12 @@ Error: insufficient resources
 // ALWAYS simulate before submitting Soroban transactions
 const simulation = await rpc.simulateTransaction(transaction);
 
-if (StellarSdk.SorobanRpc.Api.isSimulationError(simulation)) {
+if (StellarSdk.rpc.Api.isSimulationError(simulation)) {
   throw new Error(`Simulation failed: ${simulation.error}`);
 }
 
 // Use assembleTransaction to add correct resources
-const preparedTx = StellarSdk.SorobanRpc.assembleTransaction(
+const preparedTx = StellarSdk.rpc.assembleTransaction(
   transaction,
   simulation
 ).build();

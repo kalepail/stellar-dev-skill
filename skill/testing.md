@@ -251,7 +251,7 @@ const LOCAL_RPC = "http://localhost:8000/soroban/rpc";
 const LOCAL_HORIZON = "http://localhost:8000";
 const LOCAL_PASSPHRASE = "Standalone Network ; February 2017";
 
-const rpc = new StellarSdk.SorobanRpc.Server(LOCAL_RPC);
+const rpc = new StellarSdk.rpc.Server(LOCAL_RPC);
 const horizon = new StellarSdk.Horizon.Server(LOCAL_HORIZON);
 ```
 
@@ -345,12 +345,12 @@ const RPC_URL = process.env.RPC_URL || "http://localhost:8000/soroban/rpc";
 const NETWORK_PASSPHRASE = process.env.NETWORK_PASSPHRASE || "Standalone Network ; February 2017";
 
 describe("Contract Integration Tests", () => {
-  let rpc: StellarSdk.SorobanRpc.Server;
+  let rpc: StellarSdk.rpc.Server;
   let keypair: StellarSdk.Keypair;
   let contractId: string;
 
   beforeAll(async () => {
-    rpc = new StellarSdk.SorobanRpc.Server(RPC_URL);
+    rpc = new StellarSdk.rpc.Server(RPC_URL);
     keypair = StellarSdk.Keypair.random();
 
     // Fund account
@@ -378,7 +378,7 @@ describe("Contract Integration Tests", () => {
       .build();
 
     const simResult = await rpc.simulateTransaction(tx);
-    const preparedTx = StellarSdk.SorobanRpc.assembleTransaction(tx, simResult);
+    const preparedTx = StellarSdk.rpc.assembleTransaction(tx, simResult);
 
     preparedTx.sign(keypair);
     const result = await rpc.sendTransaction(preparedTx.build());
@@ -421,7 +421,7 @@ fn integration_test_with_local_network() {
 
 ```toml
 [dev-dependencies]
-soroban-sdk = { version = "22.0.0", features = ["testutils"] }
+soroban-sdk = { version = "23.4.1", features = ["testutils"] }
 
 [profile.test]
 opt-level = 0
