@@ -421,7 +421,7 @@ fn integration_test_with_local_network() {
 
 ```toml
 [dev-dependencies]
-soroban-sdk = { version = "23.4.1", features = ["testutils"] }
+soroban-sdk = { version = "25.0.1", features = ["testutils"] }  # match [dependencies] version
 
 [profile.test]
 opt-level = 0
@@ -544,6 +544,224 @@ pub fn create_funded_user(env: &Env, client: &ContractClient, amount: i128) -> A
 }
 ```
 
+## Fuzz Testing
+
+Soroban has first-class fuzz testing via `cargo-fuzz` and the built-in `SorobanArbitrary` trait. All `#[contracttype]` types automatically derive `SorobanArbitrary` when the `"testutils"` feature is active.
+
+### Setup
+
+```bash
+# Install nightly Rust + cargo-fuzz
+rustup install nightly
+cargo install --locked cargo-fuzz
+
+# Initialize fuzz targets
+cargo fuzz init
+```
+
+Update `Cargo.toml` to include both crate types:
+```toml
+[lib]
+crate-type = ["lib", "cdylib"]
+```
+
+Add to `fuzz/Cargo.toml`:
+```toml
+[dependencies]
+soroban-sdk = { version = "25.0.1", features = ["testutils"] }
+```
+
+### Writing a Fuzz Target
+
+```rust
+// fuzz/fuzz_targets/fuzz_deposit.rs
+#![no_main]
+
+use libfuzzer_sys::fuzz_target;
+use soroban_sdk::{testutils::Address as _, Address, Env};
+use my_contract::{Contract, ContractClient};
+
+fuzz_target!(|input: (u64, i128)| {
+    let (seed, amount) = input;
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(Contract, ());
+    let client = ContractClient::new(&env, &contract_id);
+    let user = Address::generate(&env);
+
+    // Initialize
+    client.initialize(&user);
+
+    // Fuzz deposit — should never panic unexpectedly
+    let _ = client.try_deposit(&user, &amount);
+});
+```
+
+### Running Fuzz Tests
+
+```bash
+# Run (use --sanitizer=thread on macOS)
+cargo +nightly fuzz run fuzz_deposit
+
+# Generate code coverage
+cargo +nightly fuzz coverage fuzz_deposit
+```
+
+### Soroban Token Fuzzer
+
+Reusable library for fuzzing token contracts:
+- **GitHub**: https://github.com/brson/soroban-token-fuzzer
+
+### Documentation
+
+- [Stellar Fuzzing Guide](https://developers.stellar.org/docs/build/guides/testing/fuzzing)
+- [Fuzzing Example Contract](https://developers.stellar.org/docs/build/smart-contracts/example-contracts/fuzzing)
+
+## Property-Based Testing
+
+Use `proptest` with `SorobanArbitrary` for QuickCheck-style property testing that runs in standard `cargo test`.
+
+```rust
+#[cfg(test)]
+mod prop_tests {
+    use super::*;
+    use proptest::prelude::*;
+    use soroban_sdk::{testutils::Address as _, Env};
+
+    proptest! {
+        #[test]
+        fn deposit_then_withdraw_preserves_balance(amount in 1i128..=i128::MAX) {
+            let env = Env::default();
+            env.mock_all_auths();
+            let contract_id = env.register(Contract, ());
+            let client = ContractClient::new(&env, &contract_id);
+            let user = Address::generate(&env);
+
+            client.initialize(&user);
+            client.deposit(&user, &amount);
+            client.withdraw(&user, &amount);
+
+            prop_assert_eq!(client.balance(&user), 0);
+        }
+    }
+}
+```
+
+**Recommended workflow**: Use `cargo-fuzz` interactively to find deep bugs, then convert to `proptest` for regression prevention in CI.
+
+## Differential Testing with Test Snapshots
+
+Soroban automatically writes JSON snapshots at the end of every test to `test_snapshots/`, capturing events and final ledger state. Commit these to source control — diffs reveal unintended behavioral changes.
+
+### Comparing Against Deployed Contracts
+
+```rust
+// Fetch deployed contract for comparison
+// $ stellar contract fetch --id C... --out-file deployed.wasm
+
+mod deployed {
+    soroban_sdk::contractimport!(file = "deployed.wasm");
+}
+
+#[test]
+fn test_upgrade_compatibility() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    // Register both versions
+    let old_id = env.register_contract_wasm(None, deployed::WASM);
+    let new_id = env.register(NewContract, ());
+
+    let old_client = deployed::Client::new(&env, &old_id);
+    let new_client = NewContractClient::new(&env, &new_id);
+
+    let user = Address::generate(&env);
+
+    // Run identical operations and compare
+    old_client.initialize(&user);
+    new_client.initialize(&user);
+
+    assert_eq!(old_client.get_value(), new_client.get_value());
+}
+```
+
+- **Docs**: [Differential Tests with Test Snapshots](https://developers.stellar.org/docs/build/guides/testing/differential-tests-with-test-snapshots)
+
+## Fork Testing
+
+Test against real production state using ledger snapshots:
+
+```bash
+# Create snapshot of deployed contract
+stellar snapshot create --address C... --output json --out snapshot.json
+
+# Optionally at a specific ledger
+stellar snapshot create --address C... --ledger 12345678 --output json --out snapshot.json
+```
+
+```rust
+#[test]
+fn test_against_mainnet_state() {
+    let env = Env::from_ledger_snapshot_file("snapshot.json");
+    env.mock_all_auths();
+
+    let contract_id = /* contract address from snapshot */;
+    let client = ContractClient::new(&env, &contract_id);
+
+    // Test operations against real state
+    let result = client.get_value();
+    assert!(result > 0);
+}
+```
+
+- **Docs**: [Fork Testing](https://developers.stellar.org/docs/build/guides/testing/fork-testing)
+
+## Mutation Testing
+
+Use `cargo-mutants` to verify test quality — modifies source code and checks that tests catch the changes.
+
+```bash
+cargo install --locked cargo-mutants
+cargo mutants
+```
+
+**Output interpretation**:
+- **CAUGHT**: Tests detected the mutation (good coverage)
+- **MISSED**: Tests passed despite mutation (test gap — review `mutants.out/diff/`)
+
+- **Docs**: [Mutation Testing](https://developers.stellar.org/docs/build/guides/testing/mutation-testing)
+
+## Resource Profiling
+
+Soroban uses a multidimensional resource model (CPU instructions, ledger reads/writes, bytes, events, rent).
+
+### CLI Simulation
+
+```bash
+# Simulate contract invocation to see resource costs
+stellar contract invoke \
+  --id CONTRACT_ID \
+  --source alice \
+  --network testnet \
+  --sim-only \
+  -- \
+  function_name --arg value
+```
+
+### Stellar Plus Profiler (Cheesecake Labs)
+
+```typescript
+import { StellarPlus } from 'stellar-plus';
+
+const profilerPlugin = new StellarPlus.Utils.Plugins.sorobanTransaction.profiler();
+// Collects CPU instructions, RAM, ledger reads/writes
+// Aggregation: sum, average, standard deviation
+// Output: CSV, formatted text tables
+```
+
+- **Docs**: https://docs.cheesecakelabs.com/stellar-plus/reference/utils/plugins/profiler-plugin
+
 ### Testing Checklist
 
 - [ ] Unit tests cover all public functions
@@ -553,5 +771,9 @@ pub fn create_funded_user(env: &Env, client: &ContractClient, amount: i128) -> A
 - [ ] Events emission verified
 - [ ] Storage TTL behavior validated
 - [ ] Cross-contract interactions tested
+- [ ] Fuzz tests for critical paths (deposits, withdrawals, swaps)
+- [ ] Property-based tests for invariants
+- [ ] Mutation testing confirms test quality
+- [ ] Differential test snapshots committed to source control
 - [ ] Integration tests against local network
 - [ ] Testnet deployment verified before mainnet

@@ -95,6 +95,8 @@ pub fn use_data(env: Env) {
 }
 ```
 
+> See [contracts-soroban.md](contracts-soroban.md) for full TTL management patterns and storage type guidance.
+
 ---
 
 ### 4. Wrong Storage Type
@@ -136,27 +138,23 @@ fn test_auth() {
     // DON'T just mock all auths blindly
     // env.mock_all_auths();  // Be careful with this!
 
-    // DO test specific auth requirements
-    let user = Address::generate(&env);
-
+    // DO test specific auth requirements with mock_auths()
     env.mock_auths(&[MockAuth {
         address: &user,
         invoke: &MockAuthInvoke {
             contract: &contract_id,
             fn_name: "transfer",
-            args: vec![&env, user.into_val(&env), other.into_val(&env), 100i128.into_val(&env)],
+            args: (&user, &other, &100i128).into_val(&env),
             sub_invokes: &[],
         },
     }]);
 
-    // Now call should work
     client.transfer(&user, &other, &100);
-
-    // Verify auths were checked
-    let auths = env.auths();
-    assert!(!auths.is_empty());
+    assert!(!env.auths().is_empty());
 }
 ```
+
+> See [testing.md](testing.md) for comprehensive auth testing patterns including `mock_all_auths()`, specific auth mocking, and cross-contract auth.
 
 ---
 

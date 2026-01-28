@@ -7,6 +7,9 @@
 - Transaction sending with proper confirmation handling
 
 ## Recommended Dependencies
+
+> **Requires Node.js 20+** — the Stellar SDK dropped Node 18 support.
+
 ```bash
 npm install @stellar/stellar-sdk @stellar/freighter-api
 # Or for multi-wallet support:
@@ -14,6 +17,8 @@ npm install @stellar/stellar-sdk @creit.tech/stellar-wallets-kit
 ```
 
 ## SDK Initialization
+
+> For the full API reference (RPC methods, Horizon endpoints, migration guide), see [api-rpc-horizon.md](api-rpc-horizon.md).
 
 ### Basic Setup
 ```typescript
@@ -583,6 +588,29 @@ await kit.transfer(tokenContract, recipient, amount);
 - **Policy Support**: Threshold multisig, spending limits, custom policies
 - **External Wallet Support**: Connect Freighter, LOBSTR via adapters
 - **Gasless Transactions**: Optional relayer integration for fee sponsoring
+
+### Fee Sponsorship with OpenZeppelin Relayer
+
+The [OpenZeppelin Relayer](https://docs.openzeppelin.com/relayer/stellar) (also called Stellar Channels Service) handles gasless transaction submission. It replaces the deprecated Launchtube service and uses Stellar's native fee bump mechanism so users don't need XLM for fees.
+
+```typescript
+import * as RPChannels from "@openzeppelin/relayer-plugin-channels";
+
+const client = new RPChannels.ChannelsClient({
+  baseUrl: "https://channels.openzeppelin.com/testnet",
+  apiKey: "your-api-key",
+});
+
+// Submit a Soroban contract call with fee sponsorship
+const response = await client.submitSorobanTransaction({
+  func: contractFunc,
+  auth: contractAuth,
+});
+```
+
+- **Testnet hosted instance**: `https://channels.openzeppelin.com/testnet` (API keys at `/gen`)
+- **Production**: Self-host via Docker ([GitHub](https://github.com/OpenZeppelin/openzeppelin-relayer))
+- **Stellar docs**: https://developers.stellar.org/docs/tools/openzeppelin-relayer
 
 ### Resources
 - **GitHub**: https://github.com/kalepail/smart-account-kit

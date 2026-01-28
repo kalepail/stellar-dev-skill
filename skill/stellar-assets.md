@@ -390,6 +390,14 @@ For fiat on/off ramps:
 // Anchor handles KYC and fiat transfer
 ```
 
+### SEP-0045 (Web Auth for Contract Accounts)
+
+Extends SEP-10 to support Soroban contract accounts (`C...` addresses) for web authentication. Required for smart wallet / passkey-based anchor integrations. See [SEP-0045](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0045.md).
+
+### SEP-0050 (Non-Fungible Tokens)
+
+Standard contract interface for NFTs on Soroban. Reference implementations available in [OpenZeppelin Stellar Contracts](https://github.com/OpenZeppelin/stellar-contracts) with Base, Consecutive, and Enumerable variants. See [SEP-0050](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0050.md).
+
 ## Best Practices
 
 ### Asset Issuance

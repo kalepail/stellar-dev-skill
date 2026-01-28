@@ -50,7 +50,7 @@ const health = await rpc.getHealth();
 
 ```typescript
 const ledger = await rpc.getLatestLedger();
-// { id: "...", sequence: 123456, protocolVersion: 21 }
+// { id: "...", sequence: 123456, protocolVersion: 25 }
 ```
 
 #### Get Ledger Entries
@@ -139,7 +139,8 @@ for (const event of events.events) {
 
 ### RPC Limitations
 
-- **7-day history only**: No access to older transactions
+- **7-day history for most methods**: `getTransaction`, `getEvents`, etc. only cover recent data
+- **`getLedgers` exception**: "Infinite Scroll" feature queries any ledger back to genesis via the data lake
 - **No streaming**: Poll for updates (no WebSocket)
 - **Contract-focused**: Limited classic Stellar data
 
@@ -326,8 +327,9 @@ const allTxs = await horizonServer
   .forAccount(publicKey)
   .call();
 
-// RPC - only recent (7 days)
-// For historical data, use:
+// RPC - most methods limited to 7 days
+// Exception: getLedgers can query back to genesis (Infinite Scroll)
+// For full historical data, use:
 // 1. Hubble (SDF's BigQuery dataset)
 // 2. Galexie (data pipeline)
 // 3. Your own indexer
@@ -350,7 +352,7 @@ setInterval(pollForUpdates, 5000);
 
 ## Historical Data Access
 
-For data older than 7 days (not available via RPC):
+For data older than 7 days (not available via most RPC methods; `getLedgers` can reach genesis via Infinite Scroll):
 
 ### Hubble (BigQuery)
 
@@ -368,12 +370,30 @@ LIMIT 100
 Self-hosted data pipeline for processing Stellar ledger data:
 - https://github.com/stellar/galexie
 
+### Data Lake
+
+RPC "Infinite Scroll" is powered by the Stellar data lake — a cloud-based object store (SEP-0054 format):
+- **Public access**: `s3://aws-public-blockchain/v1.1/stellar/ledgers/pubnet` (AWS Open Data)
+- **Self-host**: Use Galexie to export to AWS S3 or Google Cloud Storage
+- **Hosted**: [Quasar (Lightsail Network)](https://quasar.lightsail.network) provides hosted Galexie Data Lake + Archive RPC endpoints
+- **Size**: ~3.8TB, growing ~0.5TB/year
+- **Cost**: ~$160/month self-hosted ($60 compute + $100 storage)
+- **Docs**: https://developers.stellar.org/docs/data/apis/rpc/admin-guide/data-lake-integration
+
 ### Third-Party Indexers
 
-- StellarExpert API
-- Horizon instances with full history
+For complex queries, event streaming, or custom data pipelines beyond what RPC/Horizon provide:
+
+- **Mercury** — Stellar-native indexer with Retroshades, GraphQL API (https://mercurydata.app)
+- **SubQuery** — Multi-chain indexer with Stellar/Soroban support, event handlers (https://subquery.network)
+- **Goldsky** — Real-time data replication pipelines and subgraphs (https://goldsky.com)
+- **StellarExpert API** — Free, no-auth REST API for assets, accounts, ledger resolution (https://stellar.expert/openapi.html)
+
+See the full indexer directory: https://developers.stellar.org/docs/data/indexers
 
 ## Network Configuration
+
+> For a React/Next.js-specific setup, see [frontend-stellar-sdk.md](frontend-stellar-sdk.md).
 
 ### Environment-Based Setup
 

@@ -2,6 +2,11 @@
 
 This guide catalogs the major projects, protocols, and tools in the Stellar ecosystem. Use this as a reference when building on Stellar to find relevant integrations, examples, and community projects.
 
+> **Canonical directories** — For the most up-to-date project lists, check:
+> - [Stellar Ecosystem](https://stellar.org/ecosystem) — Official directory (searchable by country, asset, category)
+> - [SCF Projects](https://communityfund.stellar.org/projects) — Funded projects with status tracking
+> - [Stellar on DefiLlama](https://defillama.com/chain/stellar) — Live DeFi TVL data
+
 ## DeFi Protocols
 
 ### Lending & Borrowing
@@ -18,12 +23,6 @@ First non-custodial lending protocol on Soroban with flash loan support.
 - **Use Case**: Lending, borrowing, flash loans
 - **Features**: Pool-based strategy, sTokens, dTokens, utilization caps
 - **Oracle**: SEP-40 compatible (Reflector)
-
-#### Laina
-Low-fee, trustless decentralized loan platform.
-- **Use Case**: Simple lending/borrowing
-- **GitHub**: https://github.com/laina-defi/laina
-- **SCF**: https://communityfund.stellar.org/project/laina-3ch
 
 ### DEXs & AMMs
 
@@ -50,10 +49,6 @@ Governance-driven liquidity layer with AMM functionality.
 AMM protocol on Soroban.
 - **GitHub**: https://github.com/Phoenix-Protocol-Group
 - **Use Case**: Token swaps, liquidity pools
-
-#### Comet
-AMM pools on Stellar.
-- **Use Case**: Liquidity provision, swaps
 
 ### Yield & Vaults
 
@@ -115,9 +110,6 @@ Payments platform with yield features.
 - **Use Case**: Payments, earning (via DeFindex/Blend)
 - **Features**: Non-custodial yield generation
 
-#### HOT Wallet
-Cross-chain mobile wallet supporting Stellar.
-
 ### Multi-Wallet Integration
 
 #### Stellar Wallets Kit
@@ -158,12 +150,26 @@ Service for fee-sponsored transaction submission.
 
 ### Data Indexing
 
+For a full directory of indexing options, see [Stellar Indexer Docs](https://developers.stellar.org/docs/data/indexers).
+
 #### Mercury
-Advanced blockchain data indexing platform.
+Stellar-native data indexing platform with Retroshades technology.
 - **Website**: https://mercurydata.app
 - **Docs**: https://docs.mercurydata.app
 - **Use Case**: Event indexing, data queries, automation
-- **Features**: Zephyr VM (serverless Rust execution at ledger close)
+- **Features**: Zephyr VM (serverless Rust execution at ledger close), GraphQL API
+
+#### SubQuery
+Multi-chain indexer supporting Stellar and Soroban.
+- **Website**: https://subquery.network
+- **Quick Start**: https://subquery.network/doc/indexer/quickstart/quickstart_chains/stellar.html
+- **Features**: Block/transaction/operation/event handlers, multi-threading, 300+ chains
+
+#### Goldsky
+Real-time data replication and subgraph platform.
+- **Website**: https://goldsky.com
+- **Docs**: https://docs.goldsky.com/chains/stellar
+- **Features**: Mirror (real-time pipelines), subgraphs, on-chain + off-chain data
 
 #### Zephyr VM
 Cloud execution environment for blockchain data processing.
@@ -174,24 +180,43 @@ Cloud execution environment for blockchain data processing.
 ### Contract Libraries
 
 #### OpenZeppelin Stellar Contracts
-Audited smart contract library for Soroban.
+Audited smart contract library for Soroban (v0.6.0, Jan 2026).
 - **GitHub**: https://github.com/OpenZeppelin/stellar-contracts
 - **Docs**: https://developers.stellar.org/docs/tools/openzeppelin-contracts
 - **Contract Wizard**: https://wizard.openzeppelin.com/stellar
-- **Includes**: Tokens, NFTs, governance, vaults, access control
+- **Includes**: Tokens (fungible/NFT), governance (timelock), vaults (SEP-56), access control, fee forwarder
+- **Crates**: `stellar-tokens`, `stellar-access`, `stellar-contract-utils`
 
 ### Security Tools
 
-#### Scout Soroban
-Vulnerability detector and linter for Soroban contracts.
+#### Scout Soroban (CoinFabrik)
+Open-source vulnerability detector with 23 detectors for Soroban contracts.
 - **GitHub**: https://github.com/CoinFabrik/scout-soroban
-- **Use Case**: Security analysis, vulnerability detection
-- **Features**: CLI tool, VSCode extension
+- **Install**: `cargo install cargo-scout-audit`
+- **Features**: CLI tool, VSCode extension, SARIF output for CI/CD
+- **Examples**: https://github.com/CoinFabrik/scout-soroban-examples
 
-#### Scout Soroban Examples
-Security-audited contract examples.
-- **GitHub**: https://github.com/CoinFabrik/scout-soroban-examples
-- **Use Case**: Learning secure patterns, reference implementations
+#### OpenZeppelin Security Detectors SDK
+Framework for building custom security detectors for Soroban.
+- **GitHub**: https://github.com/OpenZeppelin/soroban-security-detectors-sdk
+- **Detectors**: `auth_missing`, `unchecked_ft_transfer`, improper TTL, contract panics
+- **Extensible**: Load external detector libraries, CI/CD ready
+
+#### Certora Sunbeam Prover
+Formal verification for Soroban — first WASM platform supported by Certora.
+- **Docs**: https://docs.certora.com/en/latest/docs/sunbeam/index.html
+- **Spec Language**: CVLR (Rust macros) — https://github.com/Certora/cvlr
+- **Reports**: [Blend V1 verification](https://www.certora.com/reports/blend-smart-contract-verification-report)
+- **Verifies at**: WASM bytecode level, eliminating compiler trust assumptions
+
+#### Runtime Verification — Komet
+Formal verification and testing tool designed for Soroban (SCF-funded).
+- **Blog**: https://runtimeverification.com/blog/introducing-komet-smart-contract-testing-and-verification-tool-for-soroban-created-by-runtime-verification
+
+#### Soroban Security Portal (Inferara)
+Community security knowledge base (SCF-funded).
+- **Website**: https://sorobansecurity.com
+- **Features**: Searchable audit reports, vulnerability database, best practices
 
 ### CLI & SDKs
 
@@ -217,7 +242,7 @@ Community-powered price oracle for Stellar.
 - **Website**: https://reflector.network
 - **Docs**: https://developers.stellar.org/docs/data/oracles/oracle-providers
 - **Features**: SEP-40 compatible, on-chain/off-chain prices, webhooks
-- **Integrations**: Blend, OrbitCDP, DeFindex, Laina, EquitX, Slender
+- **Integrations**: Blend, OrbitCDP, DeFindex, EquitX, Slender
 
 #### DIA Oracle
 Cross-chain oracle with 20,000+ asset support.
@@ -237,23 +262,6 @@ NFT marketplace and gaming platform.
 - **GitHub**: https://github.com/litemint/litemint-soroban-contracts
 - **Contracts**: Timed auctions, royalty payments
 - **Features**: Open/sealed bids, ascending/descending price, buy-now
-
-#### Soroban Snooker
-Web3 gaming with NFT integration.
-- **Use Case**: Gaming, in-app purchases, decentralized validation
-- **Learning**: Storage types, game patterns, Freighter integration
-
-#### Cowchain Farm
-Farming game demonstrating Soroban capabilities.
-- **Tech**: Flutter + Soroban
-- **Learning**: Auth, events, state expiration, auctions
-
-## DAOs & Governance
-
-#### Elio DAO
-DAO infrastructure for Soroban.
-- **Use Case**: DAO creation, asset issuance, voting
-- **Features**: Extendable hooks, open-source frontend
 
 ## Infrastructure
 
@@ -276,9 +284,9 @@ Comprehensive network explorer with analytics.
 - **Website**: https://stellar.expert
 - **Features**: Transactions, accounts, assets, contracts
 
-#### Stellar Laboratory
+#### Stellar Lab
 Developer tools and transaction builder.
-- **Website**: https://laboratory.stellar.org
+- **Website**: https://lab.stellar.org
 
 #### StellarChain
 Alternative explorer with contract support.
@@ -327,55 +335,54 @@ Publisher-subscriber oracle pattern.
 Simple NFT using OpenZeppelin.
 - **GitHub**: https://github.com/jamesbachini/OZ-Stellar-NFT
 
-#### Relink Oracle Contracts
-Chainlink integration for Soroban.
-- **GitHub**: https://github.com/RelinkServices/relink-contracts-rust-soroban
+## Cross-Chain
 
-## Learning Platforms
+#### Axelar
+Cross-chain gateway and Interchain Token Service for Soroban.
+- **GitHub**: https://github.com/axelarnetwork/axelar-amplifier-stellar
+- **Use Case**: Cross-chain messaging, token bridging, interoperability
+- **Status**: Active development (last commit Nov 2025)
 
-### Interactive Learning
+#### Allbridge Core
+Cross-chain stable swap bridge (Stellar is 10th supported chain).
+- **Use Case**: Cross-chain stablecoin transfers (USDC between Stellar, Base, Arbitrum, etc.)
+- **Features**: Automatic Stellar account activation, liquidity pools
 
-#### Soroban Learn
-Online IDE for learning Rust and Soroban.
-- **Features**: Courses, wallet integration, rewards
+#### LayerZero
+Omnichain interoperability protocol connecting Stellar to 150+ blockchains (launched Nov 2025).
+- **Use Case**: Cross-chain messaging, token bridging (OFT/ONFT), dApp interoperability
+- **Features**: OApp standard, Omni-Chain Fungible Tokens, native issuer minting/burning control
 
-#### useSoroban.app
-In-browser Soroban experimentation environment.
-- **Use Case**: Quick testing, learning, no setup required
+## Builder Teams & Companies
 
-#### Soroban Quest
-Interactive Gitpod-based learning.
-- **Use Case**: Guided tutorials, hands-on practice
+Notable teams shipping production-level code on Stellar/Soroban. For a broader directory, see [Stellar Ecosystem](https://stellar.org/ecosystem).
 
-#### RPCiege
-Rust fundamentals learning platform.
-
-### Community Resources
-
-#### Soroban-React
-React library for Soroban dApp development.
-- **Features**: Freighter support, network connectors, Jest compatible
-
-#### SoroSorcerer
-Contract generation wizard.
-- **Use Case**: No-code contract creation
-
-#### Soroban Smart Contract Catalog
-Template library for common use cases.
-- **Use Case**: Ready-to-deploy templates, learning
+| Team | Website | GitHub | X/Twitter | Notable Projects |
+|------|---------|--------|-----------|-----------------|
+| **Lightsail Network** | [lightsail.network](https://lightsail.network) | [lightsail-network](https://github.com/lightsail-network) | [@overcat_me](https://x.com/overcat_me) | Quasar RPC, Java/Python SDKs, Ledger app, validators |
+| **PaltaLabs** | [paltalabs.io](https://paltalabs.io) | [paltalabs](https://github.com/paltalabs) | [@PaltaLabs](https://x.com/PaltaLabs) | Soroswap, DeFindex |
+| **Aha Labs** | [ahalabs.dev](https://ahalabs.dev) | [AhaLabs](https://github.com/AhaLabs) | [@AhaLabsDev](https://x.com/AhaLabsDev) | Scaffold Stellar, Soroban CLI contributions |
+| **OpenZeppelin** | [openzeppelin.com](https://www.openzeppelin.com/networks/stellar) | [OpenZeppelin](https://github.com/OpenZeppelin/stellar-contracts) | [@OpenZeppelin](https://x.com/OpenZeppelin) | Contracts library, Relayer, Monitor, Security Detectors SDK |
+| **Cheesecake Labs** | [cheesecakelabs.com](https://cheesecakelabs.com) | [CheesecakeLabs](https://github.com/CheesecakeLabs) | [@CheesecakeLabs](https://x.com/CheesecakeLabs) | Stellar Plus library |
+| **Script3 / Blend Capital** | [script3.io](https://script3.io) | [script3](https://github.com/script3), [blend-capital](https://github.com/blend-capital) | [@script3official](https://x.com/script3official) | Blend Protocol |
+| **Xycloo Labs** | [xycloo.com](https://xycloo.com) | [Xycloo](https://github.com/Xycloo) | [@heytdep](https://x.com/heytdep) | Mercury indexer, Zephyr VM |
+| **CoinFabrik** | [coinfabrik.com](https://www.coinfabrik.com) | [CoinFabrik](https://github.com/CoinFabrik) | [@coinfabrik](https://x.com/coinfabrik) | Scout Soroban (static analysis) |
+| **Creit Tech** | [creit.tech](https://creit.tech) | [Creit-Tech](https://github.com/Creit-Tech) | [@CreitTech_](https://x.com/CreitTech_) | Stellar Wallets Kit, xBull, SorobanHub |
+| **Ultra Stellar** | [ultrastellar.com](https://ultrastellar.com) | [lobstrco](https://github.com/lobstrco) | [@Lobstrco](https://x.com/Lobstrco) | LOBSTR wallet, StellarExpert |
 
 ## Project Directories
 
 ### Official Directories
 
-#### Stellar Ecosystem
-Main project directory.
+#### Stellar Ecosystem Directory
+The canonical, up-to-date project directory maintained by SDF.
 - **Website**: https://stellar.org/ecosystem
 - **Features**: Search by country, asset, category
+- **Includes**: DeFi, wallets, anchors, on/off ramps, exchanges, infrastructure
 
-#### Anchor Directory
-On/off ramp discovery.
-- **Part of**: Stellar Ecosystem directory
+#### SCF Project Tracker
+All Stellar Community Fund–funded projects with status and milestones.
+- **Website**: https://communityfund.stellar.org/projects
 
 ### Funding Programs
 

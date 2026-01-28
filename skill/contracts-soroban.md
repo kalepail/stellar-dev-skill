@@ -8,6 +8,12 @@ Use Soroban when you need:
 - State management beyond account balances
 - Interoperability with Stellar Assets via SAC
 
+## Alternative Languages
+
+Rust is the primary and recommended language for Soroban contracts. Community-maintained alternatives exist but are not recommended for production:
+- **AssemblyScript**: [`as-soroban-sdk`](https://github.com/Soneso/as-soroban-sdk) by Soneso — allows TypeScript-like syntax, officially listed on Stellar docs, but may lag behind the latest protocol version
+- **Solidity**: [Hyperledger Solang](https://github.com/hyperledger-solang/solang) — SDF-funded, compiles Solidity to Soroban WASM, currently **pre-alpha** ([docs](https://developers.stellar.org/docs/learn/migrate/evm/solidity-support-via-solang))
+
 ## Architecture Overview
 
 ### Host-Guest Model
@@ -55,10 +61,10 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-soroban-sdk = "23.4.1"
+soroban-sdk = "25.0.1"  # check https://crates.io/crates/soroban-sdk for latest
 
 [dev-dependencies]
-soroban-sdk = { version = "23.4.1", features = ["testutils"] }
+soroban-sdk = { version = "25.0.1", features = ["testutils"] }  # match above
 
 [profile.release]
 opt-level = "z"
@@ -475,3 +481,43 @@ fn test_transfer_with_auth() {
 - Use events for data that doesn't need on-chain queries
 - Batch operations where possible
 - Profile resource usage with `stellar contract invoke --sim`
+
+## Zero-Knowledge Cryptography (Protocol 25 "X-Ray")
+
+Protocol 25 (mainnet January 22, 2026) added native ZK cryptographic primitives via [CAP-0074](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0074.md) and [CAP-0075](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0075.md).
+
+### BN254 Elliptic Curve (CAP-0074)
+
+Provides feature parity with Ethereum's EIP-196/EIP-197 precompiles:
+
+```rust
+use soroban_sdk::crypto::bn254::{Bn254, Bn254G1Affine, Fr};
+
+let bn254 = env.crypto().bn254();
+
+// G1 point addition
+let result: Bn254G1Affine = bn254.g1_add(&p0, &p1);
+
+// G1 scalar multiplication
+let result: Bn254G1Affine = bn254.g1_mul(&p0, &scalar);
+
+// Multi-pairing check (Groth16 verification)
+let valid: bool = bn254.pairing_check(g1_points, g2_points);
+```
+
+### Poseidon Hash Functions (CAP-0075)
+
+ZK-friendly hash functions (two orders of magnitude fewer ZK constraints than SHA-256). Exposed as raw permutation primitives via `env.crypto_hazmat()` (requires `hazmat` feature flag).
+
+### Use Cases Unlocked
+- **zk-SNARK verification** (Groth16, PlonK) — on-chain proof verification
+- **Privacy pools** — prove lawful source of funds without revealing details
+- **Confidential tokens** — hidden balances with validity proofs
+- **Merkle trees** with Poseidon hashes for efficient ZK circuits
+- **Cross-chain ZK proofs** via Wormhole + RISC Zero integration
+
+### Examples
+- [Groth16 Verifier](https://github.com/stellar/soroban-examples/tree/main/groth16_verifier) — zk-SNARK verifier example (uses BLS12-381; BN254 follows the same pattern)
+- [BLS Signature](https://github.com/stellar/soroban-examples) — BLS12-381 signature verification
+
+> **Note**: BLS12-381 curve operations were added in Protocol 22 via CAP-0059. Protocol 25 adds BN254 as a complement, matching Ethereum's curve for easier migration of EVM ZK applications.

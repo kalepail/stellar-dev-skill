@@ -1,7 +1,8 @@
 ---
 name: stellar-dev
-description: End-to-end Stellar development playbook (Jan 2026). Covers Soroban smart contracts (Rust SDK), Stellar CLI, JavaScript/Python/Go SDKs for client apps, Stellar RPC (preferred) and Horizon API (legacy), Stellar Assets vs Soroban tokens (SAC bridge), wallet integration (Freighter, Stellar Wallets Kit), smart accounts with passkeys, testing strategies, security patterns, and common pitfalls. Optimized for payments, asset tokenization, DeFi, and financial applications.
+description: End-to-end Stellar development playbook (Jan 2026). Covers Soroban smart contracts (Rust SDK), Stellar CLI, JavaScript/Python/Go SDKs for client apps, Stellar RPC (preferred) and Horizon API (legacy), Stellar Assets vs Soroban tokens (SAC bridge), wallet integration (Freighter, Stellar Wallets Kit), smart accounts with passkeys, testing strategies, security patterns, and common pitfalls. Optimized for payments, asset tokenization, DeFi, and financial applications. Use when building on Stellar, Soroban, or working with XLM, Stellar Assets, trustlines, anchors, SEPs, or the Stellar RPC/Horizon APIs.
 user-invocable: true
+argument-hint: "[task-description]"
 ---
 
 # Stellar Development Skill (Soroban-first)
@@ -16,6 +17,12 @@ Use this Skill when the user asks for:
 - Client SDK usage (JavaScript, Python, Go, Rust)
 - Local testing and deployment
 - Security hardening and audit-style reviews
+
+## What this Skill is NOT for
+- Bitcoin, Ethereum, Solana, or other non-Stellar blockchain development
+- Stellar node/validator operation (see [validators docs](https://developers.stellar.org/docs/validators))
+- General Rust programming unrelated to Soroban
+- Stellar protocol governance or CAP authoring
 
 ## Default stack decisions (opinionated)
 
@@ -35,8 +42,8 @@ Use this Skill when the user asks for:
 ### 3. API Access: Stellar RPC first (Horizon deprecated)
 - **Prefer Stellar RPC** for new projects (JSON-RPC, real-time state)
 - **Horizon API** is deprecated but maintained for legacy compatibility
-- RPC provides 7-day transaction history only
-- Use Hubble/Galexie for comprehensive historical data
+- RPC: 7-day history for most methods; `getLedgers` queries back to genesis (Infinite Scroll)
+- Use Hubble/Galexie for comprehensive historical data beyond RPC
 
 ### 4. Token Strategy: Stellar Assets first
 - **Prefer Stellar Assets** (classic issuance + trustlines) for fungible tokens
@@ -64,6 +71,15 @@ Use this Skill when the user asks for:
 - Asset management layer (issuance, trustlines)
 - Testing/CI layer
 - Infrastructure (RPC/Horizon/indexing)
+
+### Quick routing
+- Need custom on-chain logic? → [contracts-soroban.md](contracts-soroban.md)
+- Building a frontend/dApp? → [frontend-stellar-sdk.md](frontend-stellar-sdk.md)
+- Issuing or managing tokens? → [stellar-assets.md](stellar-assets.md)
+- Setting up tests/CI? → [testing.md](testing.md)
+- Querying chain data or indexing? → [api-rpc-horizon.md](api-rpc-horizon.md) (also see [Data Docs](https://developers.stellar.org/docs/data))
+- Security review? → [security.md](security.md)
+- Hit an error? → [common-pitfalls.md](common-pitfalls.md)
 
 ### 2. Pick the right building blocks
 - Contracts: Soroban Rust SDK + Stellar CLI
@@ -104,3 +120,8 @@ When you implement changes, provide:
 - Common pitfalls: [common-pitfalls.md](common-pitfalls.md)
 - Ecosystem projects: [ecosystem.md](ecosystem.md)
 - Reference links: [resources.md](resources.md)
+
+## Keywords
+stellar, soroban, xlm, smart contracts, rust, wasm, webassembly, rpc, horizon,
+freighter, stellar-sdk, soroban-sdk, stellar-cli, trustline, anchor, sep, passkey,
+smart wallet, sac, stellar asset contract, defi, token, nft, scaffold stellar

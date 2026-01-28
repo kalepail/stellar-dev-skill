@@ -49,25 +49,7 @@ pub fn withdraw(env: Env, to: Address, amount: i128) {
 }
 ```
 
-**Prevention Patterns**:
-```rust
-// Pattern 1: Direct require_auth on caller
-pub fn transfer(env: Env, from: Address, to: Address, amount: i128) {
-    from.require_auth(); // 'from' must sign
-    // ... transfer logic
-}
-
-// Pattern 2: Admin check helper
-fn require_admin(env: &Env) {
-    let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
-    admin.require_auth();
-}
-
-pub fn set_config(env: Env, new_value: u32) {
-    require_admin(&env);
-    env.storage().instance().set(&DataKey::Config, &new_value);
-}
-```
+**Prevention**: Always use `require_auth()` on the caller or an admin address. See [contracts-soroban.md](contracts-soroban.md) for full authorization patterns (direct auth, admin helpers, `require_auth_for_args`).
 
 ---
 
@@ -398,19 +380,105 @@ if (clawbackEnabled) {
 
 ---
 
-## Audit Resources
+## Bug Bounty Programs
 
-- **Scout**: CoinFabrik's vulnerability detector for Soroban
-  - CLI tool and VSCode extension
-  - Detects common vulnerability patterns
-  - https://github.com/CoinFabrik/scout-soroban
+### Immunefi — Stellar Core (up to $250K)
+- **URL**: https://immunefi.com/bug-bounty/stellar/
+- **Scope**: stellar-core, rs-soroban-sdk, rs-soroban-env, soroban-tools (CLI + RPC), js-soroban-client, rs-stellar-xdr, wasmi fork
+- **Rewards**: Critical $50K–$250K, High $10K–$50K, Medium $5K, Low $1K
+- **Payment**: USD-denominated, paid in XLM. KYC required.
+- **Rules**: PoC required. Test on local forks only (no mainnet/testnet).
 
-- **Soroban Audit Bank**: SDF-funded security audits
-  - Pre-approved auditor network
-  - Funding support for qualifying projects
-  - https://stellar.org/foundation
+### Immunefi — OpenZeppelin on Stellar (up to $25K)
+- **URL**: https://immunefi.com/bug-bounty/openzeppelin-stellar/
+- **Scope**: OpenZeppelin Stellar Contracts library
+- **Max payout**: $25K per bug, $250K total program cap
 
-- **OpenZeppelin Stellar Contracts**: Audited contract templates
-  - Token standards (fungible, NFT)
-  - Access control patterns
-  - https://github.com/OpenZeppelin/stellar-contracts
+### HackerOne — Web Applications
+- **URL**: https://stellar.org/grants-and-funding/bug-bounty
+- **Scope**: SDF web applications, production servers, domains
+- **Disclosure**: 90-day remediation window before public disclosure
+
+## Soroban Audit Bank
+
+SDF's proactive security program with **$3M+ deployed across 43+ audits**.
+
+- **URL**: https://stellar.org/grants-and-funding/soroban-audit-bank
+- **Projects list**: https://stellar.org/audit-bank/projects
+- **Eligibility**: SCF-funded projects (financial protocols, infrastructure, high-traction dApps)
+- **Co-payment**: 5% upfront (refundable if Critical/High/Medium issues remediated within 20 business days)
+- **Follow-up audits**: Triggered at $10M and $100M TVL milestones (includes formal verification and competitive audits)
+- **Preparation**: STRIDE threat modeling framework + Audit Readiness Checklist
+
+### Partner Audit Firms
+
+| Firm | Specialty |
+|------|-----------|
+| **OtterSec** | Smart contract audits |
+| **Veridise** | Tool-assisted audits, [security checklist](https://veridise.com/blog/audit-insights/building-on-stellar-soroban-grab-this-security-checklist-to-avoid-vulnerabilities/) |
+| **Runtime Verification** | Formal methods, [Komet tool](https://runtimeverification.com/blog/introducing-komet-smart-contract-testing-and-verification-tool-for-soroban-created-by-runtime-verification) |
+| **CoinFabrik** | Static analysis (Scout), manual audits |
+| **QuarksLab** | Security research |
+| **Coinspect** | Security audits |
+| **Certora** | Formal verification ([Sunbeam Prover](https://docs.certora.com/en/latest/docs/sunbeam/index.html)) |
+| **Halborn** | Security assessments |
+| **Zellic** | Blockchain + cryptography research |
+| **Code4rena** | Competitive audit platform |
+
+## Security Tooling
+
+### Static Analysis
+
+#### Scout Soroban (CoinFabrik)
+Open-source vulnerability detector with 23 detectors (critical through enhancement severity).
+- **GitHub**: https://github.com/CoinFabrik/scout-soroban
+- **Install**: `cargo install cargo-scout-audit` → `cargo scout-audit`
+- **Output formats**: HTML, Markdown, JSON, PDF, SARIF (CI/CD integration)
+- **VSCode extension**: [Scout Audit](https://marketplace.visualstudio.com/items?itemName=CoinFabrik.scout-audit)
+- **Key detectors**: `overflow-check`, `unprotected-update-current-contract-wasm`, `set-contract-storage`, `unrestricted-transfer-from`, `divide-before-multiply`, `dos-unbounded-operation`, `unsafe-unwrap`
+
+#### OpenZeppelin Security Detectors SDK
+Framework for building custom security detectors for Soroban.
+- **GitHub**: https://github.com/OpenZeppelin/soroban-security-detectors-sdk
+- **Architecture**: `sdk` (core), `detectors` (pre-built), `soroban-scanner` (CLI)
+- **Pre-built detectors**: `auth_missing`, `unchecked_ft_transfer`, improper TTL extension, contract panics, unsafe temporary storage
+- **Extensible**: Load external detector libraries as shared objects
+
+### Formal Verification
+
+#### Certora Sunbeam Prover
+Purpose-built formal verification for Soroban — first WASM platform supported by Certora.
+- **Docs**: https://docs.certora.com/en/latest/docs/sunbeam/index.html
+- **Spec language**: CVLR (Certora Verification Language for Rust) — Rust macros (`cvlr_assert!`, `cvlr_assume!`, `cvlr_satisfy!`)
+- **Operates at**: WASM bytecode level (eliminates compiler trust assumptions)
+- **Reports**: https://github.com/Certora/SecurityReports
+- **Example**: [Blend V1 verification report](https://www.certora.com/reports/blend-smart-contract-verification-report)
+
+#### Runtime Verification — Komet
+Formal verification and testing tool built specifically for Soroban (SCF-funded).
+- **Blog**: https://runtimeverification.com/blog/introducing-komet-smart-contract-testing-and-verification-tool-for-soroban-created-by-runtime-verification
+
+### Security Knowledge Base
+
+#### Soroban Security Portal
+Community security knowledge base by Inferara (SCF-funded).
+- **URL**: https://sorobansecurity.com
+- **Features**: Searchable audit reports, vulnerability database, best practices
+
+### Security Monitoring (Post-Deployment)
+
+#### OpenZeppelin Monitor (Stellar alpha)
+Open-source contract monitoring with Stellar support.
+- **Features**: Self-hosted via Docker, Prometheus + Grafana observability
+- **Source**: https://www.openzeppelin.com/news/monitor-and-relayers-are-now-open-source
+
+## OpenZeppelin Partnership (Jan 2025 – Dec 2026)
+
+Two-year strategic partnership covering:
+- **40 Auditor Weeks** of dedicated security audits
+- **Stellar Contracts library** (audited, production-ready)
+- **Relayer** (fee-sponsored transactions, Stellar-native)
+- **Monitor** (contract monitoring, Stellar alpha)
+- **Security Detectors SDK** (static analysis framework)
+- **SEP authorship**: SEP-0049 (Upgradeable Contracts), SEP-0050 (NFTs)
+- **Blog**: https://stellar.org/blog/foundation-news/sdf-partners-with-openzeppelin-to-enhance-stellar-smart-contract-development
