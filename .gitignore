@@ -1,5 +1,7 @@
-# Claude Code local settings
+# Local AI tool settings
 .claude/
+.cursor/
+.aider/
 
 # OS
 .DS_Store

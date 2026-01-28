@@ -1,6 +1,6 @@
-# Stellar Development Skill for Claude Code
+# Stellar Development Skill
 
-A comprehensive Claude Code skill for modern Stellar development (January 2026 best practices).
+A comprehensive AI skill for modern Stellar development (January 2026 best practices).
 
 Inspired by [solana-dev-skill](https://github.com/solana-foundation/solana-dev-skill).
 
@@ -9,7 +9,7 @@ Inspired by [solana-dev-skill](https://github.com/solana-foundation/solana-dev-s
 
 ## Overview
 
-This skill provides Claude Code with deep knowledge of the current Stellar development ecosystem:
+This skill provides AI assistants with deep knowledge of the current Stellar development ecosystem:
 
 - **Smart Contracts**: Soroban (Rust SDK, WebAssembly)
 - **Client SDKs**: stellar-sdk (JavaScript), Python, Go, Rust
@@ -22,29 +22,13 @@ This skill provides Claude Code with deep knowledge of the current Stellar devel
 
 ## Installation
 
-### Quick Install
+Clone or download the skill files to your AI assistant's skills directory. The exact location depends on your tool:
 
 ```bash
-# Clone and install
 git clone https://github.com/kalepail/stellar-dev-skill
-cd stellar-dev-skill
-./install.sh
 ```
 
-### Manual Install
-
-```bash
-# Copy skill files to Claude Code skills directory
-mkdir -p ~/.claude/skills/stellar-dev
-cp -r skill/* ~/.claude/skills/stellar-dev/
-```
-
-### Project-Specific Install
-
-```bash
-# Install for current project only
-./install.sh --project
-```
+Copy the `skill/` directory contents to your assistant's skills location. Most tools support both user-level (global) and project-level skill directories.
 
 ## Skill Structure
 
@@ -64,7 +48,7 @@ skill/
 
 ## Usage
 
-Once installed, Claude Code will automatically use this skill when you ask about:
+Once installed, your AI assistant will automatically use this skill when you ask about:
 
 - Soroban smart contract development
 - Stellar dApp frontend work
@@ -131,7 +115,7 @@ This skill incorporates best practices from:
 
 ## Progressive Disclosure
 
-The skill uses Claude Code's progressive disclosure pattern. The main `SKILL.md` provides core guidance, and Claude reads the specialized markdown files only when needed for specific tasks.
+The skill uses a progressive disclosure pattern. The main `SKILL.md` provides core guidance, and the AI reads the specialized markdown files only when needed for specific tasks.
 
 ## Contributing
 
