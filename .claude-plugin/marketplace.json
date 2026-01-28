@@ -1,0 +1,15 @@
+{
+  "$schema": "https://code.claude.com/schemas/marketplace.json",
+  "name": "stellar-dev",
+  "owner": {
+    "name": "Stellar Development Foundation",
+    "url": "https://stellar.org"
+  },
+  "plugins": [
+    {
+      "name": "stellar-dev",
+      "source": "./",
+      "description": "Skills for Stellar and Soroban development"
+    }
+  ]
+}
