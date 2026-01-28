@@ -2,7 +2,7 @@
 
 A comprehensive AI skill for modern Stellar development (January 2026 best practices).
 
-Inspired by [solana-dev-skill](https://github.com/solana-foundation/solana-dev-skill).
+Inspired by [solana-foundation/solana-dev-skill](https://github.com/solana-foundation/solana-dev-skill) and [cloudflare/skills](https://github.com/cloudflare/skills).
 
 > [!NOTE]
 > This skill was AI-generated using [Claude Code](https://claude.ai/code) and is currently under manual review. We welcome contributions! Please submit PRs, open issues, or provide feedback to help improve this resource for the Stellar ecosystem.
@@ -141,4 +141,4 @@ Contributions are welcome! Please ensure any updates reflect current Stellar eco
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+Apache-2.0 License - see [LICENSE](LICENSE) for details.
